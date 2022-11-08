@@ -33,7 +33,11 @@ from transformers.trainer_utils import (
     IntervalStrategy,
     denumpify_detensorize,
 )
-import wandb
+try:
+    import wandb
+    no_wandb = False
+except:
+    no_wandb = True
 from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
@@ -350,7 +354,8 @@ class Trainer:
         self.state.log_history.append(output)
 
         # wandb
-        wandb.log(logs)
+        if not no_wandb:
+            wandb.log(logs)
 
     def is_local_process_zero(self) -> bool:
         """

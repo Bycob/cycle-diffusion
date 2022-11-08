@@ -294,6 +294,7 @@ class DDIMSampler(object):
                       unconditional_guidance_scale=1., unconditional_conditioning=None):
         device = self.model.betas.device
         b = shape[0]
+        print("ddim", cond.shape, x_T.shape)
         if x_T is None:
             img = torch.randn(shape, device=device)
         else:
@@ -345,6 +346,7 @@ class DDIMSampler(object):
                 unconditional_guidance_scale=1., unconditional_conditioning=None):
         device = self.model.betas.device
         b = shape[0]
+        print("refine:", cond.shape, x0.shape)
 
         # Sample xt
         alphas = self.model.alphas_cumprod if ddim_use_original_steps else self.ddim_alphas
@@ -401,6 +403,7 @@ class DDIMSampler(object):
                                unconditional_guidance_scale=1., unconditional_conditioning=None, ):
         device = self.model.betas.device
         b = shape[0]
+        print("ddim_eps:", cond.shape, x_T.shape)
         if x_T is None:  # x_T is x_t if using skip_steps.
             img = torch.randn(shape, device=device)
         else:
@@ -459,6 +462,7 @@ class DDIMSampler(object):
         assert eta > 0
         device = self.model.betas.device
         b = shape[0]
+        print("ddim_encode:", cond.shape, x0.shape)
 
         if timesteps is None:
             timesteps = self.ddpm_num_timesteps if ddim_use_original_steps else self.ddim_timesteps

@@ -1,5 +1,6 @@
 # Created by Chen Henry Wu
 import os
+import sys
 import configparser
 import json
 
@@ -66,7 +67,8 @@ def parse_string(string):
 def get_config(cfg_name):
     args = Args()
     parser = configparser.ConfigParser()
-    parser.read(os.path.join('config', cfg_name))
+    this_dir = os.path.dirname(os.path.abspath(__file__))
+    parser.read(os.path.join(this_dir, '../config', cfg_name))
     for section in parser.sections():
         setattr(args, section, Args())
         for key, value in parser.items(section):

@@ -2,7 +2,8 @@
 import os
 import argparse
 import sys
-sys.path.append(os.path.abspath('model/lib/stable_diffusion'))
+this_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.join(this_dir, '../lib/stable_diffusion'))
 import glob
 from omegaconf import OmegaConf
 import numpy as np
@@ -20,7 +21,7 @@ from ..model_utils import requires_grad
 def prepare_stable_diffusion_text(source_model_type):
     print('First of all, when the code changes, make sure that no part in the model is under no_grad!')
 
-    config = OmegaConf.load(os.path.join('model/lib/stable_diffusion/configs/stable-diffusion/v1-inference.yaml'))
+    config = OmegaConf.load(os.path.join(this_dir, '../lib/stable_diffusion/configs/stable-diffusion/v1-inference.yaml'))
     ckpt = os.path.join('ckpts', 'stable_diffusion', source_model_type)
 
     return config, ckpt
@@ -60,6 +61,7 @@ def convsample_ddim_conditional(model, steps, shape, x_T, skip_steps, eta, eps_l
 def make_convolutional_sample_with_eps_conditional(model, custom_steps, eta, x_T, skip_steps, eps_list,
                                                    scale, text):
     with model.ema_scope("Plotting"):
+        print("make_convolutional_sample_with_eps_stuff")
         sample, intermediates = convsample_ddim_conditional(model,
                                                             steps=custom_steps,
                                                             shape=x_T.shape,
@@ -154,6 +156,7 @@ class SDStochasticTextWrapper(torch.nn.Module):
                 x_T = eps_list[:, 0]
                 eps_list = eps_list[:, 1:]
 
+                print("Doing iteration %i" % i)
                 for decoder_unconditional_guidance_scale in self.decoder_unconditional_guidance_scales:
                     img = make_convolutional_sample_with_eps_conditional(self.generator,
                                                                          custom_steps=self.custom_steps,
@@ -210,6 +213,7 @@ class SDStochasticTextWrapper(torch.nn.Module):
         # Eval mode for the generator.
         self.generator.eval()
 
+        print("GENERATE from stochastic_test_wrapper")
         img_ensemble = self.generate(z_ensemble, decode_text)
         assert len(img_ensemble) == len(self.decoder_unconditional_guidance_scales) * len(self.encoder_unconditional_guidance_scales) * len(self.skip_steps) * self.n_trials
 
